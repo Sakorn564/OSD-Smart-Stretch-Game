@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เล่นเกม - Office Syndrome Fitness Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      color: white;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.125rem;
+      transition: transform 0.2s;
+    }
+
+    .back-link:hover {
+      transform: translateX(-5px);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .video-section {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    #webcam-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #1a1a1a;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 1.25rem;
+      z-index: 10;
+    }
+
+    .overlay-content {
+      text-align: center;
+    }
+
+    .overlay-content button {
+      margin-top: 1rem;
+      padding: 1rem 2rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .overlay-content button:hover {
+      background: #5568d3;
+      transform: scale(1.05);
+    }
+
+    .stats-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-bar {
+      margin: 1.5rem 0;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    .progress-track {
+      height: 12px;
+      background: #E5E7EB;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 1rem;
+      transition: width 0.5s ease;
+    }
+
+    .exercise-info {
+      margin-top: 1.5rem;
+    }
+
+    .exercise-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.5rem;
+    }
+
+    .exercise-desc {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .timer {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .timer-value {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #667eea;
+      line-height: 1;
+    }
+
+    .timer-label {
+      color: #64748b;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .accuracy-display {
+      background: linear-gradient(135deg, #F0F4FF, #E8EEFF);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .accuracy-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #667eea;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .accuracy-status {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+
+    .status-excellent { color: #10B981; }
+    .status-good { color: #2196F3; }
+    .status-warning { color: #F59E0B; }
+    .status-danger { color: #EF4444; }
+
+    .feedback-box {
+      background: #FFF9E6;
+      border-left: 4px solid #F59E0B;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .feedback-text {
+      color: #92400E;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #E5E7EB;
+      color: #334155;
+    }
+
+    .btn-secondary:hover {
+      background: #D1D5DB;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: white;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .exercise-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .exercise-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: background 0.2s;
+    }
+
+    .exercise-item:hover {
+      background: #F8FAFC;
+    }
+
+    .exercise-item.completed {
+      background: #DCFCE7;
+    }
+
+    .exercise-item.current {
+      background: #E8EEFF;
+      border-left: 4px solid #667eea;
+    }
+
+    .exercise-name {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .exercise-score {
+      font-weight: 700;
+    }
+
+    .score-excellent { color: #10B981; }
+    .score-good { color: #2196F3; }
+    .score-warning { color: #F59E0B; }
+    .score-pending { color: #94A3B8; }
+
+    /* Exercise Preview Overlay */
+    .exercise-preview-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .preview-content {
+      background: white;
+      border-radius: 2rem;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .preview-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 2rem 2rem 0 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .preview-number {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1.5rem;
+      border-radius: 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .preview-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-subtitle {
+      font-size: 1.5rem;
+      opacity: 0.95;
+      font-weight: 600;
+    }
+
+    .preview-body {
+      padding: 2rem;
+    }
+
+    .preview-image-container {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #F8FAFC;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: 3px solid #E5E7EB;
+      position: relative;
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: white;
+      transition: opacity 0.3s;
+    }
+
+    .image-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      animation: spin 2s linear infinite;
+    }
+
+    .preview-description {
+      background: #F8FAFC;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .preview-desc-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-desc-text {
+      font-size: 1.125rem;
+      color: #64748b;
+      line-height: 1.8;
+    }
+
+    .preview-tips {
+      background: #FFF9E6;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border-left: 4px solid #F59E0B;
+      margin-bottom: 1.5rem;
+    }
+
+    .preview-tips-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-tips-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .preview-tips-list li {
+      color: #92400E;
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .preview-tips-list li::before {
+      content: '💡';
+      flex-shrink: 0;
+    }
+
+    .preview-countdown {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #F0F4FF, #E8EEFF);
+      border-radius: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .countdown-label {
+      font-size: 1rem;
+      color: #64748b;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .countdown-value {
+      font-size: 5rem;
+      font-weight: 900;
+      color: #667eea;
+      line-height: 1;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 1rem;
+      padding: 0 2rem 2rem;
+    }
+
+    .preview-btn {
+      flex: 1;
+      padding: 1.25rem;
+      border: none;
+      border-radius: 1rem;
+      font-weight: 700;
+      font-size: 1.125rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Prompt', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-skip-preview {
+      background: #E5E7EB;
+      color: #334155;
+    }
+
+    .btn-skip-preview:hover {
+      background: #D1D5DB;
+      transform: translateY(-2px);
+    }
+
+    .btn-start-exercise {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-start-exercise::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-start-exercise:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    .btn-start-exercise span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-start-exercise:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Tutorial Modal */
+    .tutorial-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .tutorial-content {
+      background: white;
+      border-radius: 2rem;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .tutorial-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 2rem 2rem 0 0;
+      text-align: center;
+    }
+
+    .tutorial-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .tutorial-header p {
+      opacity: 0.9;
+      font-size: 1.125rem;
+    }
+
+    .tutorial-body {
+      padding: 2rem;
+    }
+
+    .exercise-carousel {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .carousel-item {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .carousel-item.active {
+      display: block;
+    }
+
+    .exercise-card {
+      background: #F8FAFC;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      border: 3px solid #E5E7EB;
+    }
+
+    .exercise-image {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .exercise-image::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, transparent 0%, rgba(102, 126, 234, 0.1) 100%);
+    }
+
+    .exercise-emoji {
+      position: relative;
+      z-index: 1;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .exercise-details {
+      padding: 2rem;
+    }
+
+    .exercise-number {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .exercise-card-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.5rem;
+    }
+
+    .exercise-card-subtitle {
+      font-size: 1.25rem;
+      color: #667eea;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .exercise-card-description {
+      font-size: 1.125rem;
+      color: #64748b;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .exercise-benefits {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 2px solid #E5E7EB;
+    }
+
+    .benefits-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .benefits-list li {
+      padding: 0.5rem 0;
+      color: #64748b;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .benefits-list li::before {
+      content: '✓';
+      color: #10B981;
+      font-weight: 700;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .carousel-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .carousel-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .carousel-btn:hover:not(:disabled) {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .carousel-btn:disabled {
+      background: #E5E7EB;
+      color: #94A3B8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .carousel-indicators {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .indicator-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #E5E7EB;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .indicator-dot.active {
+      background: #667eea;
+      width: 32px;
+      border-radius: 6px;
+    }
+
+    .tutorial-footer {
+      padding: 2rem;
+      border-top: 2px solid #E5E7EB;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .tutorial-footer .btn {
+      flex: 1;
+    }
+
+    .btn-skip {
+      background: #E5E7EB;
+      color: #334155;
+    }
+
+    .btn-skip:hover {
+      background: #D1D5DB;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-start::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-start:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-start span {
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 1024px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .tutorial-content,
+      .preview-content {
+        max-height: 95vh;
+      }
+
+      .exercise-image {
+        height: 250px;
+        font-size: 6rem;
+      }
+
+      .exercise-card-title,
+      .preview-title {
+        font-size: 1.5rem;
+      }
+
+      .preview-subtitle {
+        font-size: 1.25rem;
+      }
+
+      .carousel-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .tutorial-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .countdown-value {
+        font-size: 4rem;
+      }
+
+      .preview-actions {
+        flex-direction: column;
+      }
+
+      .preview-body {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Exercise Preview Overlay -->
+  <div class="exercise-preview-overlay" id="exercisePreview">
+    <div class="preview-content">
+      <div class="preview-header">
+        <div class="preview-number" id="previewNumber">ท่าที่ 1/8</div>
+        <h2 class="preview-title" id="previewTitle">Neck Stretch</h2>
+        <p class="preview-subtitle" id="previewSubtitle">ยืดกล้ามเนื้อคอ</p>
+      </div>
+
+      <div class="preview-body">
+        <!-- Exercise Image -->
+        <div class="preview-image-container">
+          <img 
+            id="previewImage" 
+            class="preview-image" 
+            src="" 
+            alt="Exercise Demo"
+            style="opacity: 0;">
+          <div class="image-loading" id="imageLoading">⏳</div>
+        </div>
+
+        <!-- Description -->
+        <div class="preview-description">
+          <div class="preview-desc-title">
+            <span>📋</span> วิธีการทำ
+          </div>
+          <div class="preview-desc-text" id="previewDescription">
+            เอียงหัวไปข้างหนึ่ง กดเบาๆ ด้วยมือ รู้สึกถึงการยืดที่คอ
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="preview-tips">
+          <div class="preview-tips-title">
+            <span>💡</span> เคลับลับ
+          </div>
+          <ul class="preview-tips-list" id="previewTips">
+            <li>อย่ากดหัวแรงเกินไป ใช้แรงเบาๆ</li>
+            <li>หายใจเข้าลึกๆ ช่วยให้กล้ามเนื้อผ่อนคลาย</li>
+            <li>ค้างแต่ละข้าง 15-20 วินาที</li>
+          </ul>
+        </div>
+
+        <!-- Countdown -->
+        <div class="preview-countdown" id="previewCountdown" style="display: none;">
+          <div class="countdown-label">เริ่มใน</div>
+          <div class="countdown-value" id="previewCountdownValue">3</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="preview-actions">
+        <button class="preview-btn btn-skip-preview" onclick="skipPreview()">
+          ⏭️ ข้าม
+        </button>
+        <button class="preview-btn btn-start-exercise" onclick="startExerciseFromPreview()">
+          <span>🏋️ เริ่มท่านี้!</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial Modal -->
+  <div class="tutorial-modal" id="tutorialModal">
+    <div class="tutorial-content">
+      <div class="tutorial-header">
+        <h2>🏋️ รู้จักกับ 8 ท่ายืดเหยียด</h2>
+        <p>เรียนรู้ท่าออกกำลังกายก่อนเริ่มเกม</p>
+      </div>
+
+      <div class="tutorial-body">
+        <div class="exercise-carousel">
+          <!-- Exercise 1 -->
+          <div class="carousel-item active">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🧘</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 1/8</span>
+                <h3 class="exercise-card-title">Neck Stretch</h3>
+                <p class="exercise-card-subtitle">ยืดกล้ามเนื้อคอ</p>
+                <p class="exercise-card-description">
+                  เอียงหัวไปข้างหนึ่ง กดเบาๆ ด้วยมือ รู้สึกถึงการยืดที่ด้านข้างของคอ 
+                  ค้างไว้ 15-20 วินาที แล้วสลับข้าง
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ลดอาการปวดเมื่อยบริเวณคอและไหล่</li>
+                    <li>ป้องกัน Stiff Neck จากการนั่งทำงานนาน</li>
+                    <li>เพิ่มความยืดหยุ่นของกล้ามเนื้อคอ</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 2 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">💪</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 2/8</span>
+                <h3 class="exercise-card-title">Shoulder Roll</h3>
+                <p class="exercise-card-subtitle">หมุนไหล่</p>
+                <p class="exercise-card-description">
+                  หมุนไหล่ทั้งสองข้างไปข้างหน้า 10 ครั้ง แล้วหมุนข้างหลัง 10 ครั้ง 
+                  เคลื่อนไหวอย่างช้าๆ และควบคุม
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ลดความตึงเครียดบริเวณไหล่และหลังส่วนบน</li>
+                    <li>ปรับปรุงการไหลเวียนของเลือด</li>
+                    <li>ป้องกันอาการปวดหลังจากท่าทางที่ไม่ถูกต้อง</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 3 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🙆</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 3/8</span>
+                <h3 class="exercise-card-title">Back Stretch</h3>
+                <p class="exercise-card-subtitle">ยืดกล้ามเนื้อหลัง</p>
+                <p class="exercise-card-description">
+                  นั่งตรง ประสานมือเข้าหากัน แล้วเหยียดแขนไปข้างหน้า 
+                  โค้งหลังเล็กน้อย รู้สึกถึงการยืดที่หลัง
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ยืดกล้ามเนื้อหลังส่วนบนและกลาง</li>
+                    <li>ลดความเมื่อยล้าจากการนั่งนาน</li>
+                    <li>ปรับปรุงท่าทางการนั่ง</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 4 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🤸</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 4/8</span>
+                <h3 class="exercise-card-title">Side Bend</h3>
+                <p class="exercise-card-subtitle">โน้มตัวข้าง</p>
+                <p class="exercise-card-description">
+                  ยืนตรง ยกมือข้างหนึ่งขึ้นเหนือศีรษะ โน้มตัวไปอีกข้าง 
+                  รู้สึกถึงการยืดที่ด้านข้างของลำตัว สลับซ้าย-ขวา
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ยืดกล้ามเนื้อด้านข้างของลำตัว</li>
+                    <li>เพิ่มความยืดหยุ่นของกระดูกสันหลัง</li>
+                    <li>ช่วยในการหายใจได้ดีขึ้น</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 5 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🦸</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 5/8</span>
+                <h3 class="exercise-card-title">Chest Opener</h3>
+                <p class="exercise-card-subtitle">เปิดอก</p>
+                <p class="exercise-card-description">
+                  ประสานมือไว้ด้านหลังหัว ดันอกไปข้างหน้า เหยียดหลังให้ตรง 
+                  รู้สึกถึงการยืดที่อกและไหล่
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>เปิดกล้ามเนื้ออกและไหล่</li>
+                    <li>แก้ไขท่าทางที่โน้มไปข้างหน้า</li>
+                    <li>ปรับปรุงการหายใจ</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 6 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🦵</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 6/8</span>
+                <h3 class="exercise-card-title">Hip Flexor</h3>
+                <p class="exercise-card-subtitle">ยืดกล้ามเนื้อสะโพก</p>
+                <p class="exercise-card-description">
+                  ย่อเข่าครึ่งทาง (Lunge Position) เอนตัวไปข้างหลังเล็กน้อย 
+                  รู้สึกถึงการยืดที่ด้านหน้าของขา สลับข้าง
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ยืดกล้ามเนื้อด้านหน้าของสะโพก</li>
+                    <li>ลดปวดหลังจากการนั่งนาน</li>
+                    <li>ปรับปรุงท่าทางและการทรงตัว</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 7 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🏃</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 7/8</span>
+                <h3 class="exercise-card-title">Quad Stretch</h3>
+                <p class="exercise-card-subtitle">ยืดกล้ามเนื้อต้นขา</p>
+                <p class="exercise-card-description">
+                  ยืนขาเดียว จับเท้าอีกข้างไว้ด้านหลัง ดึงเข้าหาก้น 
+                  รู้สึกถึงการยืดที่ด้านหน้าของต้นขา สลับข้าง
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ยืดกล้ามเนื้อด้านหน้าของขา (Quadriceps)</li>
+                    <li>ปรับปรุงความยืดหยุ่นของขา</li>
+                    <li>ช่วยในการทรงตัวและประสานสัมพันธ์</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise 8 -->
+          <div class="carousel-item">
+            <div class="exercise-card">
+              <div class="exercise-image">
+                <div class="exercise-emoji">🚶</div>
+              </div>
+              <div class="exercise-details">
+                <span class="exercise-number">ท่าที่ 8/8</span>
+                <h3 class="exercise-card-title">Calf Stretch</h3>
+                <p class="exercise-card-subtitle">ยืดกล้ามเนื้อน่อง</p>
+                <p class="exercise-card-description">
+                  ก้าวเท้าข้างหนึ่งไปข้างหน้า เหยียดเข่าหลัง ให้ส้นเท้าติดพื้น 
+                  รู้สึกถึงการยืดที่น่อง สลับข้าง
+                </p>
+                <div class="exercise-benefits">
+                  <div class="benefits-title">
+                    <span>💡</span> ประโยชน์
+                  </div>
+                  <ul class="benefits-list">
+                    <li>ยืดกล้ามเนื้อน่องและเอ็นร้อยหวาย</li>
+                    <li>ป้องกันการปวดน่องและตะคริว</li>
+                    <li>ปรับปรุงการไหลเวียนในขา</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-controls">
+          <button class="carousel-btn" id="prevBtn" onclick="changeSlide(-1)">
+            ← ก่อนหน้า
+          </button>
+          
+          <div class="carousel-indicators" id="indicators">
+            <div class="indicator-dot active" onclick="goToSlide(0)"></div>
+            <div class="indicator-dot" onclick="goToSlide(1)"></div>
+            <div class="indicator-dot" onclick="goToSlide(2)"></div>
+            <div class="indicator-dot" onclick="goToSlide(3)"></div>
+            <div class="indicator-dot" onclick="goToSlide(4)"></div>
+            <div class="indicator-dot" onclick="goToSlide(5)"></div>
+            <div class="indicator-dot" onclick="goToSlide(6)"></div>
+            <div class="indicator-dot" onclick="goToSlide(7)"></div>
+          </div>
+
+          <button class="carousel-btn" id="nextBtn" onclick="changeSlide(1)">
+            ถัดไป →
+          </button>
+        </div>
+      </div>
+
+      <div class="tutorial-footer">
+        <button class="btn btn-skip" onclick="skipTutorial()">
+          ข้ามการสอน
+        </button>
+        <button class="btn btn-start" onclick="completeTutorial()">
+          <span>🎮 เริ่มเล่นเลย!</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
+  <div class="game-container">
+    <div class="header">
+      <a href="index.html" class="back-link">← กลับหน้าหลัก</a>
+      <div class="header-right">
+        <div style="color: white; font-weight: 600;">
+          <span>🔥 Streak: <span id="streak">0</span> วัน</span>
+        </div>
+        <div style="color: white; font-weight: 600;">
+          <span>💎 Points: <span id="totalPoints">0</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-layout">
+      <!-- Left: Video Section -->
+      <div class="video-section">
+        <div id="webcam-container">
+          <video id="webcam" autoplay playsinline></video>
+          <canvas id="canvas"></canvas>
+          
+          <div class="camera-overlay" id="cameraOverlay">
+            <div class="overlay-content">
+              <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+              <div>กรุณาอนุญาตการใช้กล้อง</div>
+              <button onclick="startCamera()">🎥 เริ่มใช้กล้อง</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-secondary" onclick="pauseGame()" id="pauseBtn">
+            ⏸️ หยุดชั่วคราว
+          </button>
+          <button class="btn btn-primary" onclick="skipExercise()">
+            ⏭️ ข้ามท่านี้
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Stats Section -->
+      <div class="stats-section">
+        <!-- Progress Card -->
+        <div class="stat-card">
+          <h3 style="color: #334155; margin-bottom: 1rem;">📊 ความคืบหน้า</h3>
+          <div class="progress-bar">
+            <div class="progress-label">
+              <span>ท่าที่ทำแล้ว</span>
+              <span><span id="currentExercise">0</span>/8</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="exercise-info">
+            <div class="exercise-title" id="exerciseTitle">เตรียมตัว...</div>
+            <div class="exercise-desc" id="exerciseDesc">
+              กรุณาอนุญาตการใช้กล้องเพื่อเริ่มเกม
+            </div>
+          </div>
+
+          <div class="timer">
+            <div class="timer-value" id="timerValue">20</div>
+            <div class="timer-label">วินาที</div>
+          </div>
+        </div>
+
+        <!-- Accuracy Card -->
+        <div class="stat-card">
+          <h3 style="color: #334155; margin-bottom: 1rem;">🎯 ความแม่นยำ</h3>
+          <div class="accuracy-display">
+            <div class="accuracy-value" id="accuracyValue">0%</div>
+            <div class="accuracy-status status-good" id="accuracyStatus">
+              พร้อมเริ่มต้น
+            </div>
+          </div>
+          <div class="feedback-box" id="feedbackBox" style="display: none;">
+            <div class="feedback-text" id="feedbackText"></div>
+          </div>
+        </div>
+
+        <!-- Exercise List -->
+        <div class="stat-card">
+          <h3 style="color: #334155; margin-bottom: 1rem;">💪 รายการท่า</h3>
+          <ul class="exercise-list" id="exerciseList">
+            <li class="exercise-item current">
+              <span class="exercise-name">1. Neck Stretch (ยืดคอ)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">2. Shoulder Roll (หมุนไหล่)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">3. Back Stretch (ยืดหลัง)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">4. Side Bend (โน้มข้าง)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">5. Chest Opener (เปิดอก)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">6. Hip Flexor (ยืดสะโพก)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">7. Quad Stretch (ยืดต้นขา)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+            <li class="exercise-item">
+              <span class="exercise-name">8. Calf Stretch (ยืดน่อง)</span>
+              <span class="exercise-score score-pending">—</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MediaPipe Pose -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+
+  <script>
+    // Tutorial Carousel
+    let currentSlide = 0;
+    const totalSlides = 8;
+
+    function showSlide(n) {
+      const items = document.querySelectorAll('.carousel-item');
+      const dots = document.querySelectorAll('.indicator-dot');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      if (n >= totalSlides) currentSlide = totalSlides - 1;
+      if (n < 0) currentSlide = 0;
+      else currentSlide = n;
+
+      items.forEach((item, index) => {
+        item.classList.remove('active');
+        if (index === currentSlide) {
+          item.classList.add('active');
+        }
+      });
+
+      dots.forEach((dot, index) => {
+        dot.classList.remove('active');
+        if (index === currentSlide) {
+          dot.classList.add('active');
+        }
+      });
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+    }
+
+    function changeSlide(direction) {
+      showSlide(currentSlide + direction);
+    }
+
+    function goToSlide(index) {
+      showSlide(index);
+    }
+
+    function skipTutorial() {
+      document.getElementById('tutorialModal').style.display = 'none';
+    }
+
+    function completeTutorial() {
+      document.getElementById('tutorialModal').style.display = 'none';
+      localStorage.setItem('tutorialCompleted', 'true');
+    }
+
+    // Check if tutorial should be shown
+    window.addEventListener('load', () => {
+      const tutorialCompleted = localStorage.getItem('tutorialCompleted');
+      if (!tutorialCompleted) {
+        document.getElementById('tutorialModal').style.display = 'flex';
+      } else {
+        document.getElementById('tutorialModal').style.display = 'none';
+      }
+    });
+
+    // Keyboard navigation for tutorial
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('tutorialModal');
+      if (modal.style.display === 'flex') {
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'Escape') skipTutorial();
+      }
+    });
+
+    // Game State
+    const gameState = {
+      currentExerciseIndex: 0,
+      exerciseScores: [],
+      isPaused: false,
+      isGameActive: false,
+      timeRemaining: 20,
+      currentAccuracy: 0,
+      streak: parseInt(localStorage.getItem('streak') || '0'),
+      totalPoints: parseInt(localStorage.getItem('totalPoints') || '0')
+    };
+
+    // Exercise Data with Real Images
+    const exercises = [
+      {
+        name: 'Neck Stretch',
+        nameTH: 'ยืดคอ',
+        duration: 20,
+        description: 'เอียงหัวไปข้างหนึ่ง กดเบาๆ ด้วยมือ รู้สึกถึงการยืดที่คอ',
+        imageUrl: 'https://i.imgur.com/OXAzoA9.jpeg',
+        tips: [
+          'อย่ากดหัวแรงเกินไป ใช้แรงเบาๆ',
+          'หายใจเข้าลึกๆ ช่วยให้กล้ามเนื้อผ่อนคลาย',
+          'ค้างแต่ละข้าง 15-20 วินาที'
+        ],
+        targetPose: 'neck_stretch'
+      },
+      {
+        name: 'Shoulder Roll',
+        nameTH: 'หมุนไหล่',
+        duration: 20,
+        description: 'หมุนไหล่ทั้งสองข้างไปข้างหน้า 10 ครั้ง แล้วข้างหลัง 10 ครั้ง',
+        imageUrl: 'https://i.imgur.com/P65kbKR.jpeg',
+        tips: [
+          'หมุนช้าๆ และควบคุมการเคลื่อนไหว',
+          'ยกไหล่ขึ้นเต็มที่ แล้วหมุนเป็นวงกลม',
+          'หายใจสม่ำเสมอตลอดการออกกำลังกาย'
+        ],
+        targetPose: 'shoulder_roll'
+      },
+      {
+        name: 'Back Stretch',
+        nameTH: 'ยืดหลัง',
+        duration: 20,
+        description: 'นั่งตรง ประสานมือ แล้วเหยียดแขนไปข้างหน้า โค้งหลังเล็กน้อย',
+        imageUrl: 'https://i.imgur.com/b7E6da1.jpeg',
+        tips: [
+          'ประสานมือแน่น เหยียดแขนตรงไปข้างหน้า',
+          'โค้งหลังออกมา รู้สึกถึงการยืดตรงกลางหลัง',
+          'ค้างไว้ 15-20 วินาที'
+        ],
+        targetPose: 'back_stretch'
+      },
+      {
+        name: 'Side Bend',
+        nameTH: 'โน้มข้าง',
+        duration: 20,
+        description: 'ยืนตรง ยกมือข้างหนึ่งขึ้น โน้มตัวไปอีกข้าง สลับซ้าย-ขวา',
+        imageUrl: 'https://i.imgur.com/ECdLcCI.jpeg',
+        tips: [
+          'ยืนตรง เท้าห่างประมาณความกว้างของไหล่',
+          'ยกมือข้างหนึ่งขึ้นเหนือศีรษะ',
+          'โน้มไปด้านข้าง รู้สึกยืดที่สีข้าง'
+        ],
+        targetPose: 'side_bend'
+      },
+      {
+        name: 'Chest Opener',
+        nameTH: 'เปิดอก',
+        duration: 20,
+        description: 'ประสานมือหลังหัว ดันอกไปข้างหน้า เหยียดหลังให้ตรง',
+        imageUrl: 'https://i.imgur.com/Z3BY6cS.jpeg',
+        tips: [
+          'ประสานมือไว้ด้านหลังหัว',
+          'ดันอกไปข้างหน้า ศอกชี้ออกด้านข้าง',
+          'รู้สึกถึงการเปิดของกล้ามเนื้ออก'
+        ],
+        targetPose: 'chest_opener'
+      },
+      {
+        name: 'Hip Flexor',
+        nameTH: 'ยืดสะโพก',
+        duration: 20,
+        description: 'ย่อเข่าครึ่งทาง เอนตัวไปข้างหลัง รู้สึกยืดที่ขาหน้า',
+        imageUrl: 'https://i.imgur.com/BxBSsp4.jpeg',
+        tips: [
+          'ทำท่า Lunge โดยเข่าหน้าตั้งฉาก',
+          'เอนตัวไปข้างหลังเล็กน้อย',
+          'รู้สึกยืดที่ด้านหน้าของสะโพกและต้นขา'
+        ],
+        targetPose: 'hip_flexor'
+      },
+      {
+        name: 'Quad Stretch',
+        nameTH: 'ยืดต้นขา',
+        duration: 20,
+        description: 'ยืนขาเดียว จับเท้าข้างหลัง ดึงเข้าหาก้น สลับซ้าย-ขวา',
+        imageUrl: 'https://i.imgur.com/rBhEIeQ.jpeg',
+        tips: [
+          'ยืนขาเดียว จับเท้าอีกข้างไว้',
+          'ดึงส้นเท้าเข้าหาก้น',
+          'ใช้มืออีกข้างจับผนังหรือเก้าอี้ช่วยทรงตัว'
+        ],
+        targetPose: 'quad_stretch'
+      },
+      {
+        name: 'Calf Stretch',
+        nameTH: 'ยืดน่อง',
+        duration: 20,
+        description: 'ก้าวเท้าข้างหนึ่งไปข้างหน้า เหยียดเข่าหลัง ส้นติดพื้น',
+        imageUrl: 'https://i.imgur.com/p3nQ5pS.jpeg',
+        tips: [
+          'ก้าวเท้าข้างหนึ่งไปข้างหน้า',
+          'เข่าหลังตึง ส้นเท้าติดพื้น',
+          'รู้สึกถึงการยืดที่น่องและเอ็นร้อยหวาย'
+        ],
+        targetPose: 'calf_stretch'
+      }
+    ];
+
+    // MediaPipe Pose Setup
+    let camera = null;
+    let pose = null;
+    let canvasCtx = null;
+
+    // Initialize
+    document.getElementById('streak').textContent = gameState.streak;
+    document.getElementById('totalPoints').textContent = gameState.totalPoints;
+
+    // Exercise Preview System
+    let previewCountdownInterval = null;
+
+    function showExercisePreview(exerciseIndex) {
+      const exercise = exercises[exerciseIndex];
+      if (!exercise) return;
+
+      // Update preview content
+      document.getElementById('previewNumber').textContent = `ท่าที่ ${exerciseIndex + 1}/8`;
+      document.getElementById('previewTitle').textContent = exercise.name;
+      document.getElementById('previewSubtitle').textContent = exercise.nameTH;
+      document.getElementById('previewDescription').textContent = exercise.description;
+
+      // Load image
+      const previewImage = document.getElementById('previewImage');
+      const imageLoading = document.getElementById('imageLoading');
+      
+      previewImage.style.opacity = '0';
+      imageLoading.style.display = 'block';
+      previewImage.src = exercise.imageUrl;
+      
+      previewImage.onload = () => {
+        imageLoading.style.display = 'none';
+        previewImage.style.opacity = '1';
+      };
+
+      previewImage.onerror = () => {
+        imageLoading.style.display = 'none';
+        previewImage.src = 'https://via.placeholder.com/800x600?text=ภาพไม่พร้อมใช้งาน';
+        previewImage.style.opacity = '1';
+      };
+
+      // Update tips
+      const tipsList = document.getElementById('previewTips');
+      tipsList.innerHTML = '';
+      exercise.tips.forEach(tip => {
+        const li = document.createElement('li');
+        li.textContent = tip;
+        tipsList.appendChild(li);
+      });
+
+      // Show preview overlay
+      document.getElementById('exercisePreview').style.display = 'flex';
+      document.getElementById('previewCountdown').style.display = 'none';
+      document.querySelector('.preview-actions').style.display = 'flex';
+    }
+
+    function startExerciseFromPreview() {
+      const previewOverlay = document.getElementById('exercisePreview');
+      const countdownDiv = document.getElementById('previewCountdown');
+      const actionsDiv = document.querySelector('.preview-actions');
+
+      // Show countdown, hide actions
+      countdownDiv.style.display = 'block';
+      actionsDiv.style.display = 'none';
+
+      // Start countdown
+      let countdown = 3;
+      document.getElementById('previewCountdownValue').textContent = countdown;
+
+      previewCountdownInterval = setInterval(() => {
+        countdown--;
+        
+        if (countdown > 0) {
+          document.getElementById('previewCountdownValue').textContent = countdown;
+        } else {
+          clearInterval(previewCountdownInterval);
+          previewOverlay.style.display = 'none';
+          actionsDiv.style.display = 'flex';
+          
+          // Start the actual exercise timer
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    function skipPreview() {
+      clearInterval(previewCountdownInterval);
+      document.getElementById('exercisePreview').style.display = 'none';
+      document.querySelector('.preview-actions').style.display = 'flex';
+      
+      // Start exercise immediately
+      startTimer();
+    }
+
+    // Start Camera
+    async function startCamera() {
+      const overlay = document.getElementById('cameraOverlay');
+      overlay.innerHTML = '<div class="loading"><div class="loading-spinner"></div><div style="color: white;">กำลังเปิดกล้อง...</div></div>';
+
+      try {
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        canvasCtx = canvas.getContext('2d');
+
+        // Initialize MediaPipe Pose
+        pose = new Pose({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+          }
+        });
+
+        pose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          enableSegmentation: false,
+          smoothSegmentation: false,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        pose.onResults(onPoseResults);
+
+        // Setup Camera
+        camera = new Camera(video, {
+          onFrame: async () => {
+            await pose.send({ image: video });
+          },
+          width: 640,
+          height: 480
+        });
+
+        await camera.start();
+
+        // Hide overlay and start game
+        overlay.style.display = 'none';
+        startGame();
+
+      } catch (error) {
+        console.error('Camera Error:', error);
+        overlay.innerHTML = `
+          <div class="overlay-content">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
+            <div>ไม่สามารถเข้าถึงกล้องได้</div>
+            <div style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.8;">
+              กรุณาตรวจสอบว่าอนุญาตการใช้กล้องแล้ว
+            </div>
+            <button onclick="startCamera()">🔄 ลองอีกครั้ง</button>
+            <button onclick="startDemoMode()" style="margin-top: 0.5rem;">🎮 โหมดทดสอบ</button>
+          </div>
+        `;
+      }
+    }
+
+    // Process Pose Results
+    function onPoseResults(results) {
+      if (!results.poseLandmarks || gameState.isPaused || !gameState.isGameActive) {
+        return;
+      }
+
+      const canvas = document.getElementById('canvas');
+      const video = document.getElementById('webcam');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, 
+        { color: '#667eea', lineWidth: 4 });
+      drawLandmarks(canvasCtx, results.poseLandmarks,
+        { color: '#764ba2', lineWidth: 2, radius: 6 });
+
+      canvasCtx.restore();
+
+      const accuracy = calculatePoseAccuracy(results.poseLandmarks);
+      updateAccuracy(accuracy);
+    }
+
+    function calculatePoseAccuracy(landmarks) {
+      const nose = landmarks[0];
+      const leftShoulder = landmarks[11];
+      const rightShoulder = landmarks[12];
+      const leftHip = landmarks[23];
+      const rightHip = landmarks[24];
+
+      const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+      const bodyAlignment = Math.abs(
+        (leftShoulder.x + rightShoulder.x) / 2 - 
+        (leftHip.x + rightHip.x) / 2
+      );
+
+      let score = 70;
+
+      if (shoulderWidth > 0.15 && shoulderWidth < 0.35) {
+        score += 10;
+      }
+
+      if (bodyAlignment < 0.05) {
+        score += 10;
+      }
+
+      if (nose.visibility > 0.8) {
+        score += 10;
+      }
+
+      score += Math.random() * 10 - 5;
+
+      return Math.max(0, Math.min(100, Math.round(score)));
+    }
+
+    function updateAccuracy(value) {
+      gameState.currentAccuracy = value;
+      document.getElementById('accuracyValue').textContent = value + '%';
+
+      const statusEl = document.getElementById('accuracyStatus');
+      const feedbackBox = document.getElementById('feedbackBox');
+      const feedbackText = document.getElementById('feedbackText');
+
+      if (value >= 90) {
+        statusEl.textContent = '🎉 Perfect Posture!';
+        statusEl.className = 'accuracy-status status-excellent';
+        feedbackText.textContent = 'ยอดเยี่ยม! ทำท่าได้ถูกต้องมาก รักษาท่านี้ไว้';
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = '#DCFCE7';
+        feedbackBox.style.borderLeftColor = '#10B981';
+      } else if (value >= 80) {
+        statusEl.textContent = '👍 Great Job!';
+        statusEl.className = 'accuracy-status status-good';
+        feedbackText.textContent = 'ดีมาก! รักษาท่านี้ไว้';
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = '#E8EEFF';
+        feedbackBox.style.borderLeftColor = '#2196F3';
+      } else if (value >= 50) {
+        statusEl.textContent = '⚠️ Warning Zone';
+        statusEl.className = 'accuracy-status status-warning';
+        feedbackText.textContent = 'ลองปรับท่าให้ดีกว่านี้ ทำช้าๆ และรู้สึกถึงการยืด';
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = '#FFF9E6';
+        feedbackBox.style.borderLeftColor = '#F59E0B';
+      } else {
+        statusEl.textContent = '❌ ต้องปรับปรุง';
+        statusEl.className = 'accuracy-status status-danger';
+        feedbackText.textContent = 'ลองยืดให้มากกว่านี้ และทำช้าลง';
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = '#FEE2E2';
+        feedbackBox.style.borderLeftColor = '#EF4444';
+      }
+    }
+
+    function startGame() {
+      gameState.isGameActive = true;
+      gameState.currentExerciseIndex = 0;
+      gameState.exerciseScores = [];
+      loadExercise(0);
+    }
+
+    function loadExercise(index) {
+      if (index >= exercises.length) {
+        endGame();
+        return;
+      }
+
+      const exercise = exercises[index];
+      gameState.currentExerciseIndex = index;
+      gameState.timeRemaining = exercise.duration;
+
+      document.getElementById('exerciseTitle').textContent = 
+        `${index + 1}. ${exercise.nameTH}`;
+      document.getElementById('exerciseDesc').textContent = exercise.description;
+      document.getElementById('currentExercise').textContent = index + 1;
+      document.getElementById('progressFill').style.width = 
+        ((index / exercises.length) * 100) + '%';
+
+      const items = document.querySelectorAll('.exercise-item');
+      items.forEach((item, i) => {
+        item.classList.remove('current', 'completed');
+        if (i === index) {
+          item.classList.add('current');
+        } else if (i < index) {
+          item.classList.add('completed');
+        }
+      });
+
+      // Show preview instead of starting immediately
+      showExercisePreview(index);
+    }
+
+    let timerInterval = null;
+    function startTimer() {
+      clearInterval(timerInterval);
+      
+      document.getElementById('timerValue').textContent = gameState.timeRemaining;
+      
+      timerInterval = setInterval(() => {
+        if (gameState.isPaused) return;
+
+        gameState.timeRemaining--;
+        document.getElementById('timerValue').textContent = gameState.timeRemaining;
+
+        if (gameState.timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          completeExercise();
+        }
+      }, 1000);
+    }
+
+    function completeExercise() {
+      const score = gameState.currentAccuracy;
+      gameState.exerciseScores.push(score);
+
+      const items = document.querySelectorAll('.exercise-item');
+      const scoreSpan = items[gameState.currentExerciseIndex].querySelector('.exercise-score');
+      scoreSpan.textContent = score + '%';
+      
+      if (score >= 90) {
+        scoreSpan.className = 'exercise-score score-excellent';
+      } else if (score >= 80) {
+        scoreSpan.className = 'exercise-score score-good';
+      } else {
+        scoreSpan.className = 'exercise-score score-warning';
+      }
+
+      setTimeout(() => {
+        loadExercise(gameState.currentExerciseIndex + 1);
+      }, 2000);
+    }
+
+    function skipExercise() {
+      if (!gameState.isGameActive) return;
+      
+      clearInterval(timerInterval);
+      gameState.exerciseScores.push(0);
+      
+      const items = document.querySelectorAll('.exercise-item');
+      const scoreSpan = items[gameState.currentExerciseIndex].querySelector('.exercise-score');
+      scoreSpan.textContent = 'Skip';
+      scoreSpan.className = 'exercise-score score-pending';
+      
+      loadExercise(gameState.currentExerciseIndex + 1);
+    }
+
+    function pauseGame() {
+      gameState.isPaused = !gameState.isPaused;
+      const btn = document.getElementById('pauseBtn');
+      
+      if (gameState.isPaused) {
+        btn.innerHTML = '▶️ เล่นต่อ';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+      } else {
+        btn.innerHTML = '⏸️ หยุดชั่วคราว';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+      }
+    }
+
+    function endGame() {
+      gameState.isGameActive = false;
+      clearInterval(timerInterval);
+
+      const avgScore = Math.round(
+        gameState.exerciseScores.reduce((a, b) => a + b, 0) / 
+        gameState.exerciseScores.length
+      );
+
+      gameState.streak++;
+      const pointsEarned = Math.round(avgScore / 2);
+      gameState.totalPoints += pointsEarned;
+
+      localStorage.setItem('streak', gameState.streak);
+      localStorage.setItem('totalPoints', gameState.totalPoints);
+
+      showResults(avgScore, pointsEarned);
+    }
+
+    function showResults(avgScore, pointsEarned) {
+      const overlay = document.getElementById('cameraOverlay');
+      overlay.style.display = 'flex';
+      overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+      
+      let badges = '';
+      if (avgScore >= 90) badges += '🌟 ';
+      if (gameState.streak >= 7) badges += '🔥 ';
+      if (gameState.exerciseScores.filter(s => s >= 95).length >= 5) badges += '💯 ';
+
+      overlay.innerHTML = `
+        <div class="overlay-content" style="max-width: 500px;">
+          <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+          <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">เสร็จสิ้น!</h2>
+          
+          <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 4rem; font-weight: 700; margin-bottom: 0.5rem;">
+              ${avgScore}%
+            </div>
+            <div style="font-size: 1.25rem; opacity: 0.9;">
+              คะแนนเฉลี่ย
+            </div>
+          </div>
+
+          <div style="text-align: left; background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 0.75rem;">📊 ท่าที่ทำ: 8/8</div>
+            <div style="margin-bottom: 0.75rem;">💎 Points: +${pointsEarned}</div>
+            <div style="margin-bottom: 0.75rem;">🔥 Streak: ${gameState.streak} วัน</div>
+            <div>🏆 Badges: ${badges || 'ไม่มี'}</div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button onclick="location.href='index.html'" style="flex: 1; padding: 1rem; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 0.75rem; font-weight: 600; cursor: pointer; font-size: 1rem; font-family: 'Prompt', sans-serif;">
+              🏠 กลับหน้าหลัก
+            </button>
+            <button onclick="location.reload()" style="flex: 1; padding: 1rem; background: white; color: #667eea; border: none; border-radius: 0.75rem; font-weight: 600; cursor: pointer; font-size: 1rem; font-family: 'Prompt', sans-serif;">
+              🔄 เล่นอีกรอบ
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function startDemoMode() {
+      document.getElementById('cameraOverlay').style.display = 'none';
+      startGame();
+
+      setInterval(() => {
+        if (!gameState.isPaused && gameState.isGameActive) {
+          const randomAccuracy = 60 + Math.random() * 35;
+          updateAccuracy(Math.round(randomAccuracy));
+        }
+      }, 500);
+    }
+
+    setTimeout(() => {
+      const overlay = document.getElementById('cameraOverlay');
+      if (overlay && overlay.style.display !== 'none') {
+        const existingContent = overlay.querySelector('.overlay-content');
+        if (existingContent && !existingContent.querySelector('button[onclick="startDemoMode()"]')) {
+          const demoBtn = document.createElement('button');
+          demoBtn.textContent = '🎮 โหมดทดสอบ (ไม่ใช้กล้อง)';
+          demoBtn.style.marginTop = '0.5rem';
+          demoBtn.onclick = startDemoMode;
+          existingContent.appendChild(demoBtn);
+        }
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
